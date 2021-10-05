@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Code Builder Startup</title>
+    <link rel="stylesheet" href="salesforce-lightning-design-system.min.css" />
+    <style>
+      html {
+        background-color: #fff;
+        color: #014486;
+      }
+      .parking-lot-container {
+        margin: 10% auto;
+        width: 50%;
+      }
+      .parking-lot-header {
+        text-align: center;
+      }
+      .spinner-container {
+        margin-top: 50px;
+        position: relative;
+      }
+      .progress-bar-container {
+        color: #080707;
+        margin-top: 120px;
+      }
+      .slds-progress-bar__value {
+        background: #1b96ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="parking-lot-container">
+      <section class="parking-lot-header">
+        <h1 class="slds-text-heading_large">Code Builder Startup</h1>
+      </section>
+      <section class="spinner-container">
+        <div class="slds-spinner_container">
+          <div
+            role="status"
+            class="slds-spinner slds-spinner_medium slds-spinner_brand"
+          >
+            <span class="slds-assistive-text">Loading</span>
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+          </div>
+        </div>
+      </section>
+      <section class="progress-bar-container"></section>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    createProgressBars();
+    const progressBars = new Array(10).fill(0).map((value, index) => {
+      return {
+        label: document.querySelector(`#progress-label-${index}`),
+        progressBar: document.querySelector(`#progress-bar-${index}`),
+      };
+    });
+    console.log('progress Bars is: ', progressBars);
+
+    function updateProgressBar(percent, componentIndex) {
+      console.log('updateProgressBar: ', percent, componentIndex);
+      const progressBar = progressBars[componentIndex];
+      console.log('progressBar is: ', progressBar);
+      // update label
+      progressBar.label.querySelector(
+        '.label-percentage-complete span'
+      ).innerHTML = percent;
+      // update aria value
+      progressBar.progressBar.setAttribute('aria-valuenow', percent);
+      // update assistive text
+      progressBar.progressBar.querySelector(
+        '.slds-assistive-text span'
+      ).innerHTML = percent;
+      // update style width
+      progressBar.progressBar.querySelector(
+        '.slds-progress-bar__value'
+      ).style.width = `${percent}%`;
+    }
+
+    socket.on('status', (statusObj) => {
+      console.log('status: ', statusObj);
+      const { percent, componentIndex } = statusObj;
+      if (componentIndex < progressBars.length) {
+        updateProgressBar(percent, componentIndex);
+      }
+    });
+
+    function createProgressBars() {
+      new Array(10).fill(0).forEach((value, index) => {
+        createProgressBar(index);
+      });
+    }
+    function createProgressBar(componentIndex) {
+      const progressBarContainer = document.querySelector(
+        '.progress-bar-container'
+      );
+      const str = `<div
+        id="progress-label-${componentIndex}"
+        class="slds-grid slds-grid_align-spread slds-p-bottom_x-small"
+      >
+        <span class="component-name">Component ${componentIndex + 1}</span>
+        <span aria-hidden="true" class="label-percentage-complete">
+          <strong><span>0</span>% Complete</strong>
+        </span>
+      </div>
+      <div
+        id="progress-bar-${componentIndex}"
+        class="slds-progress-bar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-labelledby="progress-bar-label-id-5"
+        aria-label="Code Builder Setup Assistant"
+        role="progressbar"
+      >
+        <span class="slds-progress-bar__value" style="width: 0%">
+          <span class="slds-assistive-text">Progress: <span>0</span>%</span>
+        </span>
+      </div>`;
+      progressBarContainer.insertAdjacentHTML('beforeend', str);
+    }
+  </script>
+</html>

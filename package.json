@@ -1,0 +1,23 @@
+{
+  "name": "parkinglot",
+  "version": "1.0.0",
+  "description": "the parking lot app for code builder",
+  "main": "index.js",
+  "scripts": {
+    "test": "test.js",
+    "postinstall": "copyfiles -f ./node_modules/@salesforce-ux/design-system/assets/styles/salesforce-lightning-design-system.min.css ./public"
+  },
+  "keywords": [
+    "code",
+    "builder",
+    "codebuilder"
+  ],
+  "author": "web tools and services",
+  "license": "ISC",
+  "dependencies": {
+    "@salesforce-ux/design-system": "^2.16.2",
+    "copyfiles": "^2.4.1",
+    "express": "^4.17.1",
+    "socket.io": "^4.2.0"
+  }
+}
