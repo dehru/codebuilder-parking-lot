@@ -10,10 +10,10 @@ app.use(express.static('public'));
 io.on('connection', (socket) => {
   let percentComplete = new Array(10).fill(0);
   let componentIndex = 0;
+  let interval;
   function sendStatus() {
     componentIndex =
       componentIndex < percentComplete.length ? componentIndex : 0;
-    console.log('componentIndex: ', componentIndex);
     if (percentComplete[componentIndex] < 100) {
       percentComplete[componentIndex] += 10;
     } else {
@@ -24,13 +24,14 @@ io.on('connection', (socket) => {
         percent: percentComplete[componentIndex],
         componentIndex: componentIndex,
       };
-      console.log('status: ', JSON.stringify(status));
       socket.emit('status', status);
     } else {
       clearInterval(interval);
     }
   }
-  const interval = setInterval(sendStatus, 200);
+  setTimeout(() => {
+    interval = setInterval(sendStatus, 200);
+  }, 2000);
 });
 
 const port = process.env.PORT || 80;
